@@ -23,40 +23,6 @@ from app.schemas import (
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get(
-    "/",
-    response_model=PaginatedList[UserResponseSchema],
-)
-def read_users(db_session: SessionDep, limit: int = Query(default=25, le=100), page: int = Query(default=1, ge=1)) -> Any:
-    """
-    Retrieve users.
-    """
-    
-    skip = (page - 1) * limit
-
-    users = user_crud.read_users_list(db_session=db_session, skip=skip, limit=limit)
-    total_size = user_crud.count_total_users(db_session=db_session)
-
-    try:
-        result = PaginatedList(
-            page_size=len(users),
-            page_limit=limit,
-            total_size=total_size,
-            current_page=page,
-            data=users,
-        )
-        return result
-
-    except ValidationError as err:
-        for error in err.errors():
-            if error["type"] == "page_out_range_error":
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail=error["msg"]
-                )
-
-    return users
-
-
 @router.post(
     "/", 
     response_model=UserResponseSchema
