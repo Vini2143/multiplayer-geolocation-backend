@@ -39,6 +39,18 @@ def create_user(*, db_session: Session, payload: UserCreateSchema) -> UserModel:
     return user
 
 
+def update_user(*, db_session: Session, db_user: UserModel, data: dict = {}) -> UserModel | None:
+
+    for key, value in data.items():
+        setattr(db_user, key, value)
+    
+    db_session.add(db_user)
+    db_session.commit()
+    db_session.refresh(db_user)
+
+    return db_user
+
+
 def read_user_by_param(*, db_session: Session, param: InstrumentedAttribute, value) -> UserModel | None:
     query = select(UserModel).where(param == value)
 

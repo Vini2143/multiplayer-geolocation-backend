@@ -65,7 +65,7 @@ def update_password_me(
 
     data = {"password": hashed_password}
 
-    user_crud.update_user(db_session=db_session, db_user=current_user, extra_data=data)
+    user_crud.update_user(db_session=db_session, db_user=current_user, data=data)
     
     return Message(message="Password updated successfully")
 
