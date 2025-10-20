@@ -74,7 +74,7 @@ def create_user(*, db_session: SessionDep, payload: UserCreateSchema) -> Any:
             detail="The user with this email already exists in the system.",
         )
 
-    user = user_crud.create_user(db_session=db_session, user_create=payload)
+    user = user_crud.create_user(db_session=db_session, payload=payload)
 
     return user
 
