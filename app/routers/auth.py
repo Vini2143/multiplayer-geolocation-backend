@@ -29,7 +29,7 @@ def login_access_token(
     """
     
     user = user_crud.authenticate_user(
-        db_session=db_session, email=payload.username, password=payload.password
+        db_session=db_session, payload=payload
     )
 
     if not user:
