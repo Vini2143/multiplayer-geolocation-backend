@@ -25,8 +25,8 @@ class UserModel(Base):
     username: Mapped[str]
     password: Mapped[str]
 
-    lat: Mapped[float]
-    long: Mapped[float]
+    lat: Mapped[Optional[float]]
+    long: Mapped[Optional[float]]
 
 
 class GroupModel(Base):
