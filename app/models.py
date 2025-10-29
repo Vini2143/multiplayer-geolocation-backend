@@ -2,7 +2,8 @@ from random import randbytes
 from typing import Optional
 from uuid import uuid4
 from zoneinfo import ZoneInfo
-from sqlalchemy import MetaData, ForeignKey, Integer, BigInteger, UUID, DateTime, UniqueConstraint, JSON
+from sqlalchemy.orm import Session, InstrumentedAttribute
+from sqlalchemy import MetaData, ForeignKey, Integer, BigInteger, UUID, DateTime, UniqueConstraint, JSON, select
 from sqlalchemy.orm import mapped_column, relationship, Mapped, DeclarativeBase, MappedAsDataclass
 from datetime import datetime, date, timedelta
 from app.enums import *
@@ -14,7 +15,34 @@ from app.core.config import settings
 my_metadata = MetaData()
 
 class Base(DeclarativeBase):
-    pass
+
+    @classmethod
+    def all(cls, db_session: Session):
+        return db_session.scalars(select(cls)).all()
+
+    @classmethod
+    def filter(cls, db_session: Session, **kwargs):
+        stmt = select(cls)
+        for field, value in kwargs.items():
+            stmt = stmt.where(getattr(cls, field) == value)
+        return db_session.scalars(stmt).all()
+
+    @classmethod
+    def first(cls, db_session: Session, **kwargs):
+        stmt = select(cls)
+        for field, value in kwargs.items():
+            stmt = stmt.where(getattr(cls, field) == value)
+        return db_session.scalars(stmt).first()
+
+    def save(self, db_session: Session):
+        db_session.add(self)
+        db_session.commit()
+        db_session.refresh(self)
+
+    def delete(self, db_session: Session):
+        db_session.delete(self)
+        db_session.commit()
+
 
 
 class UserModel(Base):
