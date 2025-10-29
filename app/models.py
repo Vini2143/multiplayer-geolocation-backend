@@ -47,3 +47,24 @@ class _UserGroupModel(Base):
     group_id: Mapped[str] = mapped_column(ForeignKey("group.id"))
 
     __table_args__ = (UniqueConstraint("user_id", "group_id"),)
+
+
+class WaypointModel(Base):
+    __tablename__ = "waypoint"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    group_id: Mapped[str] = mapped_column(ForeignKey("group.id"))
+
+    name: Mapped[str]
+    lat: Mapped[Optional[float]]
+    long: Mapped[Optional[float]]
+
+
+class _WaypointGroupModel(Base):
+    __tablename__ = "waypoint_group"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    waypoint_id: Mapped[str] = mapped_column(ForeignKey("waypoint.id"))
+    group_id: Mapped[str] = mapped_column(ForeignKey("group.id"))
+
+    __table_args__ = (UniqueConstraint("waypoint_id", "group_id"),)
