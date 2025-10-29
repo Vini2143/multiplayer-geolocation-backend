@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker, Session
 from app.core.config import settings
 from app.utils.crud import user as crud
 
-print(str(settings.SQLALCHEMY_DATABASE_URI))
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 

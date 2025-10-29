@@ -3,7 +3,7 @@ from typing import Generic, Optional, TypeVar
 from pydantic import BaseModel, EmailStr, Field, ValidationInfo, computed_field, model_validator
 from pydantic_core import PydanticCustomError
 
-from ._base import PASSWORD_REGEX, OrmBaseSchema, clean_cpf_format
+from ._base import OrmBaseSchema
 
 
 PaginatedT = TypeVar("PaginatedT")
@@ -48,10 +48,6 @@ class Message(BaseModel):
 class TokenSchema(BaseModel):
     access_token: str
     token_type: str = "bearer"
-
-
-class TokenPayload(BaseModel):
-    sub: str | None = None
 
 
 class LoginSchema(BaseModel):

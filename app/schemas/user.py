@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from ._base import OrmBaseSchema, cpf_format
+from ._base import OrmBaseSchema
 
 
 class UserCreateSchema(OrmBaseSchema):

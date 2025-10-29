@@ -15,9 +15,6 @@ from app.core import security
 from app.core.config import settings
 from app.core.database import engine
 from app.models import UserModel
-from app.schemas.misc import TokenPayload
-
-UUID_PATTERN = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 
 def get_db() -> Generator[Session, None, None]:
     with Session(engine) as session:
@@ -30,11 +27,9 @@ TokenDep = Annotated[str, Depends(HTTPBearer())]
 
 def get_current_user(db_session: SessionDep, token: TokenDep) -> UserModel:
     try:
-        payload = jwt.decode(
+        token_data = jwt.decode(
             token.credentials, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
-
-        token_data = TokenPayload(**payload)
 
     except (InvalidTokenError, ValidationError):
         raise HTTPException(
@@ -42,7 +37,7 @@ def get_current_user(db_session: SessionDep, token: TokenDep) -> UserModel:
             detail="Could not validate credentials.",
         )
 
-    user = db_session.get(UserModel, token_data.sub)
+    user = db_session.get(UserModel, token_data.get("sub"))
 
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user.")

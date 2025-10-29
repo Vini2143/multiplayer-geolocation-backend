@@ -1,5 +1,3 @@
-from .users import *
 from .misc import *
-
-UserCreateSchema.model_rebuild()
-UserResponseSchema.model_rebuild()
+from .user import *
+from .group import *

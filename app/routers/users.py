@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import ValidationError
 
-from app.schemas.users import UserPasswordSchema
+from app.schemas.user import UserPasswordSchema
 from app.utils.crud import user as user_crud
 from app.utils.deps import (
     CurrentUser,
