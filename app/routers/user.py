@@ -5,7 +5,6 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, s
 from pydantic import ValidationError
 
 from app.schemas.user import UserPasswordSchema
-from app.utils.crud import user as user_crud
 from app.utils.deps import (
     CurrentUser,
     SessionDep,
@@ -32,15 +31,18 @@ def create_user(*, db_session: SessionDep, payload: UserCreateSchema) -> Any:
     Create new user.
     """
 
-    user = user_crud.read_user_by_param(db_session=db_session, param=UserModel.username, value=payload.username)
+    user = UserModel.filter(db_session=db_session, username=payload.username)
 
     if user:
         raise HTTPException(
             status_code=409,
             detail="The user with this email already exists in the system.",
         )
+    
+    user = UserModel(**payload.model_dump())
+    user.password = get_password_hash(payload.password)
 
-    user = user_crud.create_user(db_session=db_session, payload=payload)
+    user.save(db_session)
 
     return user
 
@@ -61,12 +63,9 @@ def update_password_me(
             status_code=400, detail="New password cannot be the same as the current one"
         )
     
-    hashed_password = get_password_hash(payload.new_password)
+    current_user.password = get_password_hash(payload.new_password)
+    current_user.save(db_session=db_session)
 
-    data = {"password": hashed_password}
-
-    user_crud.update_user(db_session=db_session, db_user=current_user, data=data)
-    
     return Message(message="Password updated successfully")
 
 
