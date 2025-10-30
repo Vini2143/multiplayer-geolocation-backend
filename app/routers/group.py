@@ -27,6 +27,7 @@ def create_group(*, db_session: SessionDep, current_user: CurrentUser, payload: 
     """
 
     group = GroupModel(user_owner_id=current_user.id, code=payload.name, **payload.model_dump())
+    group.users.append(current_user)
     group.save(db_session)
 
     return group
