@@ -27,10 +27,10 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     
-    user = UserModel.first(username=payload.username)
+    user = UserModel.first(db_session=db_session, username=payload.username)
 
-    if not user or verify_password(payload.password, user.password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    if not user or not verify_password(payload.password, user.password):
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
