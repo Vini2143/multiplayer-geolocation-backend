@@ -3,12 +3,11 @@ import secrets
 from typing import Annotated, Any
 import base64
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from app.core import security
+from app.core.security import verify_password, create_access_token
 from app.core.config import settings
 from app.core.security import get_password_hash
 from urllib.parse import quote, urlencode
 from app.models import UserModel
-from app.utils.crud import user as user_crud
 from app.schemas.misc import (
     LoginSchema,
     Message,
@@ -28,17 +27,15 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     
-    user = user_crud.authenticate_user(
-        db_session=db_session, payload=payload
-    )
+    user = UserModel.first(username=payload.username)
 
-    if not user:
+    if not user or verify_password(payload.password, user.password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     return TokenSchema(
-        access_token=security.create_access_token(
+        access_token=create_access_token(
             user.id, expires_delta=access_token_expires
         )
     )
