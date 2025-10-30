@@ -77,12 +77,19 @@ class GroupModel(Base):
     name: Mapped[str]
     code: Mapped[str]
 
+    user_owner: Mapped[UserModel] = relationship(
+        "UserModel", 
+        backref="owned_groups"
+    )
+
     users: Mapped[set["UserModel"]] = relationship(
         backref="groups",
         secondary="user_group"
     )
 
-    waypoints: Mapped[set["WaypointModel"]] = relationship()
+    waypoints: Mapped[set["WaypointModel"]] = relationship(
+        backref="group"
+    )
 
 
 class _UserGroupModel(Base):

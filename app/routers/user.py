@@ -22,7 +22,7 @@ def create_user(*, db_session: SessionDep, payload: UserCreateSchema) -> Any:
     Create new user.
     """
 
-    user = UserModel.filter(db_session=db_session, username=payload.username)
+    user = UserModel.filter(db_session, username=payload.username)
 
     if user:
         raise HTTPException(
@@ -55,7 +55,7 @@ def update_password_me(
         )
     
     current_user.password = get_password_hash(payload.new_password)
-    current_user.save(db_session=db_session)
+    current_user.save(db_session)
 
     return Message(message="Password updated successfully.")
 
