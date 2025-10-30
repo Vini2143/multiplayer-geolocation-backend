@@ -36,7 +36,7 @@ def create_user(*, db_session: SessionDep, payload: UserCreateSchema) -> Any:
     if user:
         raise HTTPException(
             status_code=409,
-            detail="The user with this email already exists in the system.",
+            detail="This username is already in use.",
         )
     
     user = UserModel(**payload.model_dump())
@@ -47,7 +47,7 @@ def create_user(*, db_session: SessionDep, payload: UserCreateSchema) -> Any:
     return user
 
 
-@router.patch("/me/password", response_model=Message)
+@router.patch("/me/password/", response_model=Message)
 def update_password_me(
     *, db_session: SessionDep, payload: UserPasswordSchema, current_user: CurrentUser
 ) -> Any:
@@ -60,17 +60,17 @@ def update_password_me(
     
     if payload.current_password == payload.new_password:
         raise HTTPException(
-            status_code=400, detail="New password cannot be the same as the current one"
+            status_code=400, detail="New password cannot be the same as the current one."
         )
     
     current_user.password = get_password_hash(payload.new_password)
     current_user.save(db_session=db_session)
 
-    return Message(message="Password updated successfully")
+    return Message(message="Password updated successfully.")
 
 
-@router.get("/me", response_model=UserResponseSchema)
-def read_user_me(current_user: CurrentUser) -> Any:
+@router.get("/me/", response_model=UserResponseSchema)
+def get_me(current_user: CurrentUser) -> Any:
     """
     Get current user.
     """

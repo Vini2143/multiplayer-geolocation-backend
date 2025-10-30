@@ -10,8 +10,6 @@ class GroupCreateSchema(OrmBaseSchema):
 
 class GroupResponseSchema(OrmBaseSchema):
     id: int
-    username: str
-    lat: Optional[float]
-    long: Optional[float]
-
+    user_owner_id: int
+    name: str
 

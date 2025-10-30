@@ -19,7 +19,7 @@ from app.utils.deps import CurrentUser, SessionDep
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login/access-token")
+@router.post("/login/access-token/")
 def login_access_token(
     db_session: SessionDep, payload: LoginSchema
 ) -> TokenSchema:
