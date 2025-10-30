@@ -82,10 +82,7 @@ class GroupModel(Base):
         secondary="user_group"
     )
 
-    waypoints: Mapped[set["WaypointModel"]] = relationship(
-        backref="waypoints",
-        secondary="waypoint_group"
-    )
+    waypoints: Mapped[set["WaypointModel"]] = relationship()
 
 
 class _UserGroupModel(Base):
@@ -97,12 +94,3 @@ class _UserGroupModel(Base):
 
     __table_args__ = (UniqueConstraint("user_id", "group_id"),)
 
-
-class _WaypointGroupModel(Base):
-    __tablename__ = "waypoint_group"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    waypoint_id: Mapped[int] = mapped_column(ForeignKey("waypoint.id"))
-    group_id: Mapped[int] = mapped_column(ForeignKey("group.id"))
-
-    __table_args__ = (UniqueConstraint("waypoint_id", "group_id"),)
