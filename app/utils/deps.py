@@ -2,7 +2,6 @@ import re
 from collections.abc import Generator
 from enum import Enum
 from typing import Annotated
-
 import jwt
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer
@@ -10,7 +9,6 @@ from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from app.core import security
 from app.core.config import settings
 from app.core.database import engine

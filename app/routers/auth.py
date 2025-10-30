@@ -6,14 +6,10 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from app.core.security import verify_password, create_access_token
 from app.core.config import settings
 from app.core.security import get_password_hash
+from app.utils.deps import CurrentUser, SessionDep
 from urllib.parse import quote, urlencode
 from app.models import UserModel
-from app.schemas.misc import (
-    LoginSchema,
-    Message,
-    TokenSchema,
-)
-from app.utils.deps import CurrentUser, SessionDep
+from app.schemas.misc import LoginSchema, Message, TokenSchema
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])

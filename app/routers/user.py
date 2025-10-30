@@ -1,23 +1,14 @@
 import uuid
 from typing import Any
-
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import ValidationError
-
-from app.schemas.user import UserPasswordSchema
-from app.utils.deps import (
-    CurrentUser,
-    SessionDep,
-)
+from app.utils.deps import CurrentUser, SessionDep
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import UserModel
-from app.schemas import (
-    UserCreateSchema,
-    UserResponseSchema,
-    PaginatedList,
-    Message,
-)
+from app.schemas.misc import PaginatedList, Message
+from app.schemas.user import UserPasswordSchema, UserCreateSchema, UserResponseSchema
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
