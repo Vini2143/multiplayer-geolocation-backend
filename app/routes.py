@@ -1,0 +1,12 @@
+from fastapi import APIRouter
+from app.core.config import settings
+from app.routers import auth, group, location_ws, user
+
+
+api_router = APIRouter(prefix=settings.API_V1_STR)
+
+api_router.include_router(auth.router)
+api_router.include_router(user.router)
+api_router.include_router(group.router)
+
+api_router.include_router(location_ws.ws_router)
