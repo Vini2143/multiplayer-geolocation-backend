@@ -7,7 +7,9 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import UserModel
 from app.schemas.misc import PaginatedList, Message
-from app.schemas.user import UserPasswordSchema, UserCreateSchema, UserResponseSchema
+from app.schemas.user import UserLocationSchema, UserPasswordSchema, UserCreateSchema, UserResponseSchema
+
+from app.utils.websocket_manager import active_connections
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -66,3 +68,22 @@ def get_me(current_user: CurrentUser) -> Any:
     Get current user.
     """
     return current_user
+
+
+@router.patch("/me/location/", response_model=Message)
+def update_location_me(
+    *, db_session: SessionDep, payload: UserLocationSchema, current_user: CurrentUser
+) -> Any:
+    """
+    Update own location.
+    """
+
+    current_user.lat = payload.lat
+    current_user.long = payload.long
+
+    current_user.save(db_session)
+
+    for group in current_user.groups:
+        active_connections.broadcast(group.id, UserResponseSchema(current_user).model_dump_json())
+
+    return Message(message="Password updated successfully.")

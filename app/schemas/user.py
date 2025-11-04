@@ -20,3 +20,7 @@ class UserPasswordSchema(OrmBaseSchema):
     current_password: str
     new_password: str
 
+
+class UserLocationSchema(OrmBaseSchema):
+    lat: Optional[float]
+    long: Optional[float]

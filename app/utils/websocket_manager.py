@@ -22,3 +22,6 @@ class ConnectionManager:
         if group_id in self.active_connections:
             for connection in self.active_connections[group_id]:
                 await connection.send_json(message)
+
+
+active_connections = ConnectionManager()
