@@ -2,6 +2,7 @@ import uuid
 from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import ValidationError
+from app.schemas.ws_event import WsEventSchema
 from app.utils.deps import CurrentUser, SessionDep
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
@@ -70,7 +71,7 @@ def get_me(current_user: CurrentUser) -> Any:
     return current_user
 
 
-@router.patch("/me/location/", response_model=Message)
+@router.patch("/me/location/", response_model=UserResponseSchema)
 def update_location_me(
     *, db_session: SessionDep, payload: UserLocationSchema, current_user: CurrentUser
 ) -> Any:
@@ -83,7 +84,9 @@ def update_location_me(
 
     current_user.save(db_session)
 
-    for group in current_user.groups:
-        active_connections.broadcast(group.id, UserResponseSchema(current_user).model_dump_json())
+    ws_event = WsEventSchema(event_type="update_user", data=UserResponseSchema(current_user)).model_dump_json()
 
-    return Message(message="Password updated successfully.")
+    for group in current_user.groups:
+        active_connections.broadcast(group.id, ws_event)
+
+    return current_user

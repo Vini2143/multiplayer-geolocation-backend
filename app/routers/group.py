@@ -2,6 +2,7 @@ import uuid
 from typing import Any, List
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import ValidationError
+from app.schemas.ws_event import WsEventSchema
 from app.schemas.waypoint import WaypointCreateSchema, WaypointResponseSchema
 from app.utils.deps import CurrentUser, SessionDep
 from app.core.config import settings
@@ -9,6 +10,8 @@ from app.core.security import get_password_hash, verify_password
 from app.models import GroupModel, WaypointModel
 from app.schemas.misc import PaginatedList, Message
 from app.schemas.group import GroupCreateSchema, GroupResponseSchema
+
+from app.utils.websocket_manager import active_connections
 
 router = APIRouter(prefix="/groups", tags=["groups"])
 
@@ -84,10 +87,13 @@ def create_waypoint(*, db_session: SessionDep, current_user: CurrentUser, group_
     Create new waypoint in a group.
     """
 
-    group = WaypointModel(group_id=group_id, **payload.model_dump())
-    group.save(db_session)
+    waypoint = WaypointModel(group_id=group_id, **payload.model_dump())
+    waypoint.save(db_session)
 
-    return group
+    ws_event = WsEventSchema(event_type="update_waypoint", data=WaypointResponseSchema(waypoint)).model_dump_json()
+    active_connections.broadcast(waypoint.group_id, ws_event)
+
+    return waypoint
 
 
 @router.get("/{group_id}/waypoints/", response_model=List[WaypointResponseSchema])
