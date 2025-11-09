@@ -32,7 +32,7 @@ def create_group(*, db_session: SessionDep, current_user: CurrentUser, payload: 
 @router.get("/{group_id}", response_model=GroupResponseSchema)
 def get(*, db_session: SessionDep, current_user: CurrentUser, group_id: int) -> Any:
     """
-    Get groups of current user.
+    Get a group info.
     """
 
     group = GroupModel.first(db_session, id=group_id)
@@ -56,6 +56,41 @@ def get_me_groups(current_user: CurrentUser) -> Any:
     return groups
 
 
+@router.post("/join/{group_code}", response_model=GroupResponseSchema)
+def join_group(*, db_session: SessionDep, current_user: CurrentUser, group_code: str) -> Any:
+    """
+    Join in a group.
+    """
+
+    group = GroupModel.first(db_session, code=group_code)
+
+    group.users.add(current_user)
+    group.save(db_session)
+
+    return group
+
+
+@router.post("/leave/{group_id}", response_model=GroupResponseSchema)
+def leave_group(*, db_session: SessionDep, current_user: CurrentUser,  group_id: int) -> Any:
+    """
+    Leave from a group.
+    """
+
+
+    group = GroupModel.first(db_session, id=group_id)
+
+    if current_user not in group.users:
+        raise HTTPException(
+            status_code=404, detail="Object not found."
+        )
+    
+    group.users.remove(current_user)
+    group.save(db_session)
+
+    return group
+
+
+
 @router.delete("/{group_id}", response_model=Message)
 def delete(*, db_session: SessionDep, current_user: CurrentUser, group_id: int) -> Any:
     """
@@ -66,7 +101,7 @@ def delete(*, db_session: SessionDep, current_user: CurrentUser, group_id: int) 
 
     if not group:
         raise HTTPException(
-            status_code=404, detail="Object does not exists."
+            status_code=404, detail="Object not found."
         )
     
     if current_user != group.user_owner:
@@ -124,7 +159,7 @@ def delete_waypoint(*, db_session: SessionDep, current_user: CurrentUser, waypoi
 
     if not waypoint:
         raise HTTPException(
-            status_code=404, detail="Object does not exists."
+            status_code=404, detail="Object not found."
         )
 
     if current_user != waypoint.group.user_owner:
