@@ -125,7 +125,7 @@ def create_waypoint(*, db_session: SessionDep, current_user: CurrentUser, group_
     waypoint = WaypointModel(group_id=group_id, **payload.model_dump())
     waypoint.save(db_session)
 
-    ws_event = WsEventSchema(event_type="update_waypoint", data=WaypointResponseSchema(waypoint)).model_dump_json()
+    ws_event = WsEventSchema(event_type="update_waypoint", data=WaypointResponseSchema.model_validate(waypoint).model_dump()).model_dump_json()
     active_connections.broadcast(waypoint.group_id, ws_event)
 
     return waypoint

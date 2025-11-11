@@ -84,7 +84,7 @@ def update_location_me(
 
     current_user.save(db_session)
 
-    ws_event = WsEventSchema(event_type="update_user", data=UserResponseSchema(current_user)).model_dump_json()
+    ws_event = WsEventSchema(event_type="update_user", data=UserResponseSchema.model_validate(current_user).model_dump()).model_dump_json()
 
     for group in current_user.groups:
         active_connections.broadcast(group.id, ws_event)
