@@ -2,7 +2,6 @@ import uuid
 from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import ValidationError
-from app.schemas.ws_event import WsEventSchema
 from app.utils.deps import CurrentUser, SessionDep
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
@@ -10,7 +9,7 @@ from app.models import UserModel
 from app.schemas.misc import PaginatedList, Message
 from app.schemas.user import UserLocationSchema, UserPasswordSchema, UserCreateSchema, UserResponseSchema
 
-from app.utils.websocket_manager import active_connections
+from app.socket_manager import sio
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -72,7 +71,7 @@ def get_me(current_user: CurrentUser) -> Any:
 
 
 @router.patch("/me/location/", response_model=UserResponseSchema)
-def update_location_me(
+async def update_location_me(
     *, db_session: SessionDep, payload: UserLocationSchema, current_user: CurrentUser
 ) -> Any:
     """
@@ -84,9 +83,10 @@ def update_location_me(
 
     current_user.save(db_session)
 
-    ws_event = WsEventSchema(event_type="update_user", data=UserResponseSchema.model_validate(current_user).model_dump()).model_dump_json()
-
-    for group in current_user.groups:
-        active_connections.broadcast(group.id, ws_event)
+    await sio.emit(
+        "update_user",
+        data=UserResponseSchema.model_validate(current_user).model_dump(),
+        to=[str(group.id) for group in current_user.groups]
+    )
 
     return current_user
