@@ -18,7 +18,7 @@ class PositionStorage:
         self._storage[sid] = data
 
     def get_user(self, sid: str):
-        self._storage.get(sid)
+        return self._storage.get(sid)
 
     def remove_user(self, sid: str):
         self._storage.pop(sid, None)
@@ -29,7 +29,7 @@ class PositionStorage:
         for sid, user_data in self._storage.items():
             if user_data["lat"] is not None and user_data["long"] is not None:
                 mappings.append({
-                    "id": user_data["user_id"],
+                    "id": user_data["id"],
                     "lat": user_data["lat"],
                     "long": user_data["long"],
                 })
@@ -89,10 +89,18 @@ async def client_update(sid, data):
 
 
 @sio.on("disconnect")
-async def disconnect(sid):
+async def disconnect(sid, data):
     user_data = positions_storage.get_user(sid)
+    rooms = list(sio.rooms(sid))
 
     print(f"User {user_data.get("username")} disconnected from group.")
     positions_storage.commit()
     positions_storage.remove_user(sid)
+
+    await sio.emit(
+        "client_disconnect",
+        data=data,
+        to=rooms,
+    )
+
     
