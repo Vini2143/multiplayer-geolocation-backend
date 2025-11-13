@@ -68,25 +68,3 @@ def get_me(current_user: CurrentUser) -> Any:
     Get current user.
     """
     return current_user
-
-
-@router.patch("/me/location/", response_model=UserResponseSchema)
-async def update_location_me(
-    *, db_session: SessionDep, payload: UserLocationSchema, current_user: CurrentUser
-) -> Any:
-    """
-    Update own location.
-    """
-
-    current_user.lat = payload.lat
-    current_user.long = payload.long
-
-    current_user.save(db_session)
-
-    await sio.emit(
-        "update_user",
-        data=UserResponseSchema.model_validate(current_user).model_dump(),
-        to=[str(group.id) for group in current_user.groups]
-    )
-
-    return current_user
