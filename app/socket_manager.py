@@ -69,6 +69,16 @@ async def connect(sid, environ, auth):
 
             await sio.enter_room(sid, str(group_id))
             positions_storage.set_user(sid, UserResponseSchema.model_validate(user).model_dump())
+
+            clients = sio.manager.rooms.get("/", {}).get(str(group_id))
+
+            data = [ positions_storage.get_user(sid) for sid in clients ]
+
+            await sio.emit(
+                "server_data",
+                data=data,
+                to=sid,
+            )
             
             print(f"User {user.username} connected to group {group_id}.")
 
