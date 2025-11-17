@@ -11,5 +11,6 @@ class GroupCreateSchema(OrmBaseSchema):
 class GroupResponseSchema(OrmBaseSchema):
     id: int
     user_owner_id: int
+    code: str
     name: str
 

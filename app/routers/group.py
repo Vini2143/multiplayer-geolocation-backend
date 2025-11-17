@@ -1,4 +1,5 @@
 import uuid
+import random
 from typing import Any, List
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import ValidationError
@@ -21,7 +22,7 @@ def create_group(*, db_session: SessionDep, current_user: CurrentUser, payload: 
     Create new group.
     """
 
-    group = GroupModel(user_owner_id=current_user.id, code=payload.name, **payload.model_dump())
+    group = GroupModel(user_owner_id=current_user.id, code=f"{random.randbytes(32).hex()}"[:6], **payload.model_dump())
     group.users.add(current_user)
     group.save(db_session)
 
