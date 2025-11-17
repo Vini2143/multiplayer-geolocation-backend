@@ -135,6 +135,9 @@ async def connect(sid, environ, auth):
 async def client_update(sid, data):
     await manager.update_position(sid, data)
 
+@sio.on("client_stop_sharing")
+async def client_update(sid, data):
+    await manager.remove_user(sid, 0)
 
 @sio.on("disconnect")
 async def disconnect(sid):
